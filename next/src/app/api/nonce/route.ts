@@ -4,10 +4,6 @@ import { generateNonce } from "siwe";
 import { ironOption } from "@/config/lib";
 import { NextRequest, NextResponse } from "next/server";
 
-type MyJsonObject = {
-  [key: string]: any;
-};
-
 export async function GET(request: NextRequest) {
   let res = new NextResponse();
 
@@ -21,30 +17,16 @@ export async function GET(request: NextRequest) {
     ironOption
   );
 
-  // console.log("request", request);
-  // console.log("res", res);
-  // console.log("ironOption", ironOption);
-  // console.log("session.siwe?.address ", session);
+  session.nonce = generateNonce();
 
-  const { method } = request;
-  switch (method) {
-    case "GET":
-      session.nonce = generateNonce();
+  await session.save();
 
-      await session.save();
+  res.headers.set("Content-Type", "text/plain");
 
-      res.headers.set("Content-Type", "text/plain");
+  res = NextResponse.json(
+    { session: session.nonce },
+    { status: res.status, headers: res.headers }
+  );
 
-      // console.log("Nonce do server ", session.nonce)
-      res = NextResponse.json(
-        { session: session.nonce },
-        { status: res.status, headers: res.headers }
-      );
-      // console.log("session dasdo server ", res)
-      return res;
-
-    default:
-      return NextResponse.json({ data: "Failed" }, { status: 520 });
-  }
+  return res;
 }
-// return NextResponse.json({ data: "Failed" }, { status: 501 });

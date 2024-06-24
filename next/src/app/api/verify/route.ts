@@ -1,4 +1,3 @@
-// import { withIronSessionApiRoute } from 'iron-session/next'
 import { IronSessionData, getIronSession } from "iron-session";
 import { ironOption } from "@/config/lib";
 import { NextApiRequest, NextApiResponse } from "next";
@@ -7,7 +6,8 @@ import { NextRequest, NextResponse } from "next/server";
 
 export async function POST(req: NextRequest) {
   let res = new NextResponse();
-  const session = await getIronSession<IronSessionData>( req as unknown as NextApiRequest,
+  const session = await getIronSession<IronSessionData>(
+    req as unknown as NextApiRequest,
     {
       ...res,
       getHeader: (name: string) => res.headers?.get(name),
@@ -15,39 +15,32 @@ export async function POST(req: NextRequest) {
     } as unknown as NextApiResponse,
     ironOption
   );
-  const { method } = req;
-  switch (method) {
-    case "POST":
-      try {
-        const request = await req.json();
+  try {
+    const request = await req.json();
 
-        const message = request.message;
-        const signature = request.signature;
-        const siweMessage = new SiweMessage(message);
-        
-        const fields = await siweMessage.verify({ signature });
+    const message = request.message;
+    const signature = request.signature;
+    const siweMessage = new SiweMessage(message);
 
-        if (fields.data.nonce !== session.nonce){
-          return NextResponse.json(
-            { message: "Invalid nonce." },
-            { status: 422 }
-          );
-        }
+    const fields = await siweMessage.verify({ signature });
 
-        session.siwe = fields.data;
+    if (fields.data.nonce !== session.nonce) {
+      return NextResponse.json({ message: "Invalid nonce." }, { status: 422 });
+    }
 
-        await session.save();
-        
-        res =    NextResponse.json({ ok: true },{status:res.status,headers:res.headers})
-        return res
-      } catch (_error) {
-        console.log("Verify session no CATCH",session)
-        return NextResponse.json({ ok: false });
-      }
-      break;
-    default:
-      return NextResponse.json({ data: "Failed" }, { status: 500 });
+    session.siwe = fields.data;
+
+    await session.save();
+
+    res = NextResponse.json(
+      { ok: true },
+      { status: res.status, headers: res.headers }
+    );
+    return res;
+  } catch (_error) {
+
+    return NextResponse.json({ ok: false });
   }
 }
 
-// export default withIronSessionApiRoute(handler, ironOptions)
+

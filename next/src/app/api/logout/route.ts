@@ -1,16 +1,26 @@
 import { IronSessionData, getIronSession } from "iron-session";
 import { ironOption } from "@/config/lib";
 import { NextApiRequest, NextApiResponse } from "next";
-import { NextResponse } from "next/server";
+import { NextRequest,NextResponse } from "next/server";
 
-export async function GET(req: NextApiRequest, res: NextApiResponse) {
-  const session = await getIronSession<IronSessionData>(req, res, ironOption);
-  const { method } = req;
-  switch (method) {
-    case "GET":
+export async function GET(request: NextRequest) {
+  let res = new NextResponse();
+
+  const session = await getIronSession<IronSessionData>(
+    request as unknown as NextApiRequest,
+    {
+      ...res,
+      getHeader: (name: string) => res.headers?.get(name),
+      setHeader: (name: string, value: string) => res.headers?.set(name, value),
+    } as unknown as NextApiResponse,
+    ironOption
+  );
+
       session.destroy();
-      return NextResponse.json({ ok: true });
-    default:
-      return NextResponse.json({ data: "Failed" }, { status: 500 });
-  }
+      res = NextResponse.json(
+        { ok: true },
+        { status: res.status, headers: res.headers }
+      );
+      return res
+
 }

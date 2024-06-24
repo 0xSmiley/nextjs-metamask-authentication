@@ -13,13 +13,6 @@ export async function GET(request: NextRequest, res: NextResponse) {
     } as unknown as NextApiResponse,
     ironOption
   );
-  const { method } = request;
-  switch (method) {
-    case "GET":
-      console.log("/me ", session);
-      return NextResponse.json({ address: session.siwe?.address });
 
-    default:
-      return NextResponse.json({ data: "Failed" }, { status: 500 });
-  }
+  return NextResponse.json({ address: session.siwe?.address });
 }

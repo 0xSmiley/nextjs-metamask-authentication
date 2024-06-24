@@ -21,21 +21,18 @@ function SignInButton({
     try {
       const nonceRes = await fetch("/api/nonce");
       if (nonceRes.ok) {
-
         const nonce = await nonceRes.json();
         if (nonce.session) {
-          
           const session_nonce = nonce.session;
-          console.log("Mudei o nonce")
-          return session_nonce
-          setState((x) => ({ ...x, nonce:session_nonce }));
+
+          return session_nonce;
+          // setState((x) => ({ ...x, nonce:session_nonce }));
         }
       } else {
         const error = "Something went wrong OMG";
         setState((x) => ({ ...x, error: error }));
       }
     } catch (error) {
-
       setState((x) => ({ ...x, error: error as Error }));
     }
   };
@@ -53,7 +50,6 @@ function SignInButton({
   const { signMessageAsync } = useSignMessage();
 
   const signIn = async () => {
-
     try {
       const chainId = chain?.id;
       if (!address || !chainId) return;
@@ -70,12 +66,10 @@ function SignInButton({
         chainId,
         nonce: await fetchNonce(),
       });
-      console.log("message ",message)
 
       const signature = await signMessageAsync({
         message: message.prepareMessage(),
       });
-      console.log("message2 ",message)
       // Verify signature
       const verifyRes = await fetch("/api/verify", {
         method: "POST",
@@ -97,9 +91,7 @@ function SignInButton({
 
   return (
     // <button disabled={!state.nonce || state.loading} onClick={signIn}>
-    <button  onClick={signIn}>
-      Sign-In with Ethereum
-    </button>
+    <button onClick={signIn}>Sign-In with Ethereum</button>
   );
 }
 
@@ -116,7 +108,6 @@ export default function Profile() {
   React.useEffect(() => {
     const handler = async () => {
       try {
-
         const res = await fetch("/api/me");
         const json = await res.json();
         setState((x) => ({ ...x, address: json.address }));
