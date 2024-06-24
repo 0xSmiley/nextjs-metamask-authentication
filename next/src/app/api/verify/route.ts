@@ -5,7 +5,8 @@ import { NextApiRequest, NextApiResponse } from "next";
 import { SiweMessage } from "siwe";
 import { NextRequest, NextResponse } from "next/server";
 
-export async function POST(req: NextRequest, res: NextResponse) {
+export async function POST(req: NextRequest) {
+  let res = new NextResponse();
   const session = await getIronSession<IronSessionData>( req as unknown as NextApiRequest,
     {
       ...res,
@@ -22,25 +23,25 @@ export async function POST(req: NextRequest, res: NextResponse) {
 
         const message = request.message;
         const signature = request.signature;
-
-
         const siweMessage = new SiweMessage(message);
         
         const fields = await siweMessage.verify({ signature });
-        if (fields.data.nonce !== session.nonce)
 
-          console.log("CERTO fields.data.nonce" , fields.data);
-          console.log("ERRADO session.nonce" , session);
+        if (fields.data.nonce !== session.nonce){
           return NextResponse.json(
             { message: "Invalid nonce." },
             { status: 422 }
           );
+        }
 
         session.siwe = fields.data;
 
         await session.save();
-        return NextResponse.json({ ok: true });
+        
+        res =    NextResponse.json({ ok: true },{status:res.status,headers:res.headers})
+        return res
       } catch (_error) {
+        console.log("Verify session no CATCH",session)
         return NextResponse.json({ ok: false });
       }
       break;

@@ -27,6 +27,7 @@ function SignInButton({
           
           const session_nonce = nonce.session;
           console.log("Mudei o nonce")
+          return session_nonce
           setState((x) => ({ ...x, nonce:session_nonce }));
         }
       } else {
@@ -67,7 +68,7 @@ function SignInButton({
         uri: window.location.origin,
         version: "1",
         chainId,
-        nonce: state.nonce,
+        nonce: await fetchNonce(),
       });
       console.log("message ",message)
 

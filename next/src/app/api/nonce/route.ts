@@ -9,7 +9,7 @@ type MyJsonObject = {
 };
 
 export async function GET(request: NextRequest) {
-  let res = new NextResponse;
+  let res = new NextResponse();
 
   const session = await getIronSession<IronSessionData>(
     request as unknown as NextApiRequest,
@@ -21,7 +21,6 @@ export async function GET(request: NextRequest) {
     ironOption
   );
 
-
   // console.log("request", request);
   // console.log("res", res);
   // console.log("ironOption", ironOption);
@@ -30,30 +29,19 @@ export async function GET(request: NextRequest) {
   const { method } = request;
   switch (method) {
     case "GET":
-     
       session.nonce = generateNonce();
-
 
       await session.save();
 
-      res.headers.set("Content-Type", "text/plain")
+      res.headers.set("Content-Type", "text/plain");
 
-      
-      // res.json.set('session',session.nonce)
-      
-      // res.body = {"session":session.nonce}
-      //let updatedjson = res.json() as MyJsonObject
-      // let updatedjson.session = session.nonce
-      // onsole.log("ANtesss session do server ", res)
-
-      console.log("Nonce do server ", session.nonce)
-      res =  NextResponse.json({session:session.nonce},{status:res.status,headers:res.headers})
+      // console.log("Nonce do server ", session.nonce)
+      res = NextResponse.json(
+        { session: session.nonce },
+        { status: res.status, headers: res.headers }
+      );
       // console.log("session dasdo server ", res)
-      return res
-      
-
-     
-
+      return res;
 
     default:
       return NextResponse.json({ data: "Failed" }, { status: 520 });
